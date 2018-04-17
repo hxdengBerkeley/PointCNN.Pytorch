@@ -1,4 +1,4 @@
-# PointCNN.MX
+# PointCNN.PyTorch
 This is a PyTorch implementation of [PointCNN](https://github.com/yangyanli/PointCNN). It is as efficent as the origin Tensorflow implemetation and achieves same accuracy on both classification and segmentaion jobs. See the following references for more information:
 ```
 "PointCNN"
