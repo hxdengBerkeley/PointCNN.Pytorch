@@ -194,7 +194,7 @@ for epoch in range(1, num_epochs+1):
             rotated_data = provider.rotate_point_cloud(current_data[start_idx:end_idx, :, :])
             jittered_data = provider.jitter_point_cloud(rotated_data) # P_Sampled
             P_Sampled = jittered_data
-            F_Sampled = np.zeros((BATCH_SIZE, num_point, 0))
+            F_Sampled = np.zeros((BATCH_SIZE, NUM_POINT, 0))
             optimizer.zero_grad()
 
             t0 = time.time()
