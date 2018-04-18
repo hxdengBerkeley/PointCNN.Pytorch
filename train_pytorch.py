@@ -149,6 +149,11 @@ global_step = 1
 #model_save_dir = os.path.join(CURRENT_DIR, "models", "mnist2")
 #os.makedirs(model_save_dir, exist_ok = True)
 
+TRAIN_FILES = provider.getDataFiles( \
+    os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/train_files.txt'))
+TEST_FILES = provider.getDataFiles(\
+    os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/test_files.txt'))
+
 losses = []
 accuracies = []
 
