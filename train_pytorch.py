@@ -108,7 +108,7 @@ parser.add_argument('--decay_step', type=int, default=200000, help='Decay step f
 parser.add_argument('--decay_rate', type=float, default=0.7, help='Decay rate for lr decay [default: 0.8]')
 FLAGS = parser.parse_args()
 
-num_point = FLAGS.num_point
+NUM_POINT = FLAGS.num_point
 lr = FLAGS.learning_rate 
 GPU_INDEX = FLAGS.gpu
 MOMENTUM = FLAGS.momentum
