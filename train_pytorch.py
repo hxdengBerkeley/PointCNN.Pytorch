@@ -146,8 +146,8 @@ loss_fn = nn.CrossEntropyLoss()
 
 global_step = 1
 
-model_save_dir = os.path.join(CURRENT_DIR, "models", "mnist2")
-os.makedirs(model_save_dir, exist_ok = True)
+#model_save_dir = os.path.join(CURRENT_DIR, "models", "mnist2")
+#os.makedirs(model_save_dir, exist_ok = True)
 
 losses = []
 accuracies = []
