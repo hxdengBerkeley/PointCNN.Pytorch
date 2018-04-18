@@ -29,6 +29,7 @@ from utils.util_funcs import knn_indices_func_gpu, knn_indices_func_cpu
 from utils.util_layers import Dense
 
 
+random.seed(0)
 
 class modelnet40_dataset(Dataset):
 
@@ -134,7 +135,7 @@ order = 'rxyz'
 scaling_range = [0.05, 0.05, 0.05, 'g']
 scaling_range_val = [0, 0, 0, 'u']
 
-model = Classifier()
+model = Classifier().cuda()
 
 decay_steps = FLAGS.decay_step
 decay_rate = FLAGS.decay_rate  
@@ -202,12 +203,12 @@ for epoch in range(1, num_epochs+1):
 
             t0 = time.time()
             P_sampled = torch.from_numpy(P_sampled).float()
-            P_sampled = Variable(P_sampled)
+            P_sampled = Variable(P_sampled).cuda()
 
             #F_sampled = torch.from_numpy(F_sampled)
 
             out = model((P_sampled))
-            loss = loss_fn(out, label)
+            loss = loss_fn(out, label.cuda())
             #print("epoch: "+str(epoch) + "   loss: "+str(loss))
             loss.backward()
             optimizer.step()
