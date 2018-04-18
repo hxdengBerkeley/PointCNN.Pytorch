@@ -198,7 +198,7 @@ for epoch in range(1, num_epochs+1):
             optimizer.zero_grad()
 
             t0 = time.time()
-            out = model((P_sampled, F_sampled))
+            out = model((P_Sampled, F_Sampled))
 
             loss = loss_fn(out, Variable(label.long()).cuda())
             loss.backward()
