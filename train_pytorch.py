@@ -53,7 +53,7 @@ class Classifier(nn.Module):
     def __init__(self):
         super(Classifier, self).__init__()
         
-        self.pcnn1 = AbbPointCNN(  1,  32,  8, 1,  -1)
+        self.pcnn1 = AbbPointCNN(  0,  32,  8, 1,  -1)
         self.pcnn2 = nn.Sequential(
             AbbPointCNN( 32,  64,  8, 2,  -1),
             AbbPointCNN( 64,  96,  8, 4,  -1),
