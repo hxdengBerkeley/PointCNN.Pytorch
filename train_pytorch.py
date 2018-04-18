@@ -199,8 +199,8 @@ for epoch in range(1, num_epochs+1):
             optimizer.zero_grad()
 
             t0 = time.time()
-            P_sampled = Variable(P_sampled).cuda()
-            F_sampled = Variable(F_sampled).cuda()
+            P_sampled = torch.from_numpy(P_sampled).cuda()
+            F_sampled = torch.from_numpy(F_sampled).cuda()
         
             print(P_sampled.shape)
             print(F_sampled.shape)
