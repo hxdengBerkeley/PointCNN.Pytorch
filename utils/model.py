@@ -153,7 +153,7 @@ class PointCNN(nn.Module):
 
         C_mid = C_out // 2 if C_in == 0 else C_out // 4
         if C_in == 0:
-            depth_multiplier = 4
+            depth_multiplier = 1
         else:
             depth_multiplier = min(int(np.ceil(C_out / C_in)), 4)
 
