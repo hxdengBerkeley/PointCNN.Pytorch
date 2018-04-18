@@ -153,6 +153,7 @@ class PointCNN(nn.Module):
 
         C_mid = C_out // 2 if C_in == 0 else C_out // 4
         depth_multiplier = min(int(np.ceil(C_out / C_in)), 4)
+        print(depth_multiplier)
 
         self.r_indices_func = lambda rep_pts, pts: r_indices_func(rep_pts, pts, K, D)
         self.dense = Dense(C_in, C_out // 2) if C_in != 0 else None
