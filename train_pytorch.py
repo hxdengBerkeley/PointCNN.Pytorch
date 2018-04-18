@@ -45,12 +45,12 @@ class modelnet40_dataset(Dataset):
 # C_in, C_out, D, N_neighbors, dilution, N_rep, r_indices_func, C_lifted = None, mlp_width = 2
 # (a, b, c, d, e) == (C_in, C_out, N_neighbors, dilution, N_rep)
 # Abbreviated PointCNN constructor.
-# AbbPointCNN = lambda a,b,c,d,e: RandPointCNN(a, b, 3, c, d, e, knn_indices_func_cpu)
+AbbPointCNN = lambda a,b,c,d,e: RandPointCNN(a, b, 3, c, d, e, knn_indices_func_cpu)
 class Classifier(nn.Module):
 
     def __init__(self):
         super(Classifier, self).__init__()
-        '''
+        
         self.pcnn1 = AbbPointCNN(  1,  32,  8, 1,  -1)
         self.pcnn2 = nn.Sequential(
             AbbPointCNN( 32,  64,  8, 2,  -1),
@@ -64,7 +64,7 @@ class Classifier(nn.Module):
             Dense(128,  64, drop_rate = 0.5),
             Dense( 64,  10, with_bn = False, activation = None)
         )
-        '''
+        
         self.test_fcn = nn.Linear(1024*3, 40)
 
     def forward(self, x):
@@ -207,7 +207,7 @@ for epoch in range(1, num_epochs+1):
 
             out = model((P_sampled))
             loss = loss_fn(out, label)
-            print("epoch: "+str(epoch) + "   loss: "+str(loss))
+            #print("epoch: "+str(epoch) + "   loss: "+str(loss))
             loss.backward()
             optimizer.step()
             if global_step % 25 == 0:
@@ -215,3 +215,4 @@ for epoch in range(1, num_epochs+1):
                 print("Loss:", loss_v)
             else:
                 loss_v = 0
+            global_step += 1
