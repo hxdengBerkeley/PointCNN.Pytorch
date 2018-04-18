@@ -135,24 +135,7 @@ order = 'rxyz'
 scaling_range = [0.05, 0.05, 0.05, 'g']
 scaling_range_val = [0, 0, 0, 'u']
 
-
 model = Classifier()
-
-data_train, label_train, data_val, label_val = data_utils.load_cls_train_val("./mnist/zips/train_files.txt", "./mnist/zips/test_files.txt")
-
-num_train = data_train.shape[0]
-point_num = data_train.shape[1]
-
-batch_num_per_epoch = int(math.ceil(num_train / batch_size))
-batch_num = batch_num_per_epoch * num_epochs
-
-training_set = modelnet40_dataset(data_train, label_train)
-training_loader = DataLoader(training_set, batch_size = batch_size)
-
-testing_batch_size = 256
-testing_set = modelnet40_dataset(data_val, label_val)
-testing_loader = DataLoader(testing_set, batch_size = testing_batch_size)
-
 
 decay_steps = FLAGS.decay_step
 decay_rate = FLAGS.decay_rate  
@@ -176,8 +159,6 @@ if False:
 for epoch in range(1, num_epochs+1):   
     train_file_idxs = np.arange(0, len(TRAIN_FILES))
     np.random.shuffle(train_file_idxs)
-
-    
 
     for fn in range(len(TRAIN_FILES)):
         log_string('----' + str(fn) + '-----')
