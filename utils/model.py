@@ -60,12 +60,18 @@ class XConv(nn.Module):
             Dense(K*K, K*K, with_bn = False),
             Dense(K*K, K*K, with_bn = False, activation = None)
         )
-
+        '''
         self.end_conv = EndChannels(SepConv(
             in_channels = C_mid + C_in,
             out_channels = C_out,
             kernel_size = (1, K),
             depth_multiplier = depth_multiplier
+        )).cuda()
+        '''
+        self.end_conv = EndChannels(SepConv(
+            in_channels = C_mid + C_in,
+            out_channels = C_out,
+            kernel_size = (1, K)
         )).cuda()
 
     def forward(self, x : Tuple[UFloatTensor,            # (N, P, dims)
