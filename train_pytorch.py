@@ -194,14 +194,17 @@ for epoch in range(1, num_epochs+1):
             # Augment batched point clouds by rotation and jittering
             rotated_data = provider.rotate_point_cloud(current_data[start_idx:end_idx, :, :])
             jittered_data = provider.jitter_point_cloud(rotated_data) # P_Sampled
-            P_Sampled = jittered_data
-            F_Sampled = np.zeros((BATCH_SIZE, NUM_POINT, 0))
+            P_sampled = jittered_data
+            F_sampled = np.zeros((BATCH_SIZE, NUM_POINT, 0))
             optimizer.zero_grad()
 
             t0 = time.time()
-            print(P_Sampled.shape)
-            print(F_Sampled.shape)
-            out = model((P_Sampled, F_Sampled))
+            P_sampled = Variable(P_sampled).cuda()
+            F_sampled = Variable(F_sampled).cuda()
+        
+            print(P_sampled.shape)
+            print(F_sampled.shape)
+            out = model((P_sampled, F_sampled))
 
 
             loss = loss_fn(out, Variable(label.long()).cuda())
