@@ -65,13 +65,10 @@ class Classifier(nn.Module):
             Dense( 64,  10, with_bn = False, activation = None)
         )
         '''
-        self.test_fcn = nn.Sequential(
-            Dense(1024*3, 40)
-        )
+        self.test_fcn = nn.Linear(1024*3, 40)
 
     def forward(self, x):
-        x = x[0]
-        x = x.view(x.size(0), -1)
+        x  = x.view(x.size(0), -1)
         logits = self.test_fcn(x)
         return logits
     '''
@@ -143,7 +140,7 @@ decay_rate = FLAGS.decay_rate
 lr_min = 0.00001
 
 optimizer = torch.optim.SGD(model.parameters(), lr = 0.01, momentum = 0.9)
-loss_fn = nn.CrossEntropyLoss()
+loss_fn = nn.CrossEntropyLoss().type(torch.autograd.Variable)
 
 global_step = 1
 
@@ -169,8 +166,8 @@ for epoch in range(1, num_epochs+1):
     for fn in range(len(TRAIN_FILES)):
         #log_string('----' + str(fn) + '-----')
         current_data, current_label = provider.loadDataFile(TRAIN_FILES[train_file_idxs[fn]])
-
         current_data = current_data[:, 0:NUM_POINT, :]
+
         current_data, current_label, _ = provider.shuffle_data(current_data, np.squeeze(current_label))
         current_label = np.squeeze(current_label)
 
@@ -191,6 +188,10 @@ for epoch in range(1, num_epochs+1):
             start_idx = batch_idx * BATCH_SIZE
             end_idx = (batch_idx + 1) * BATCH_SIZE
 
+            # Lable
+            label = current_label[start_idx:end_idx]
+            label = torch.from_numpy(label).long()
+            label = Variable(label)
             # Augment batched point clouds by rotation and jittering
             rotated_data = provider.rotate_point_cloud(current_data[start_idx:end_idx, :, :])
             jittered_data = provider.jitter_point_cloud(rotated_data) # P_Sampled
@@ -199,15 +200,14 @@ for epoch in range(1, num_epochs+1):
             optimizer.zero_grad()
 
             t0 = time.time()
-            P_sampled = torch.from_numpy(P_sampled)
+            P_sampled = torch.from_numpy(P_sampled).float()
+            P_sampled = Variable(P_sampled)
+
             #F_sampled = torch.from_numpy(F_sampled)
-        
-            print(P_sampled.shape)
-            print(F_sampled.shape)
+
             out = model((P_sampled))
-
-
-            loss = loss_fn(out, Variable(label.long()))
+            loss = loss_fn(out, label)
+            print("epoch: "+str(epoch) + "   loss: "+str(loss))
             loss.backward()
             optimizer.step()
             if global_step % 25 == 0:
