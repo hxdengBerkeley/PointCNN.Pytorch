@@ -123,7 +123,7 @@ BN_DECAY_CLIP = 0.99
         
 num_class = 40
 #sample_num = 160
-batch_size = FLAGS.batch_size #32
+BATCH_SIZE = FLAGS.batch_size #32
 num_epochs = FLAGS.max_epoch 
 jitter = 0.01
 jitter_val = 0.01
