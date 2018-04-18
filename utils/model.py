@@ -152,11 +152,11 @@ class PointCNN(nn.Module):
         super(PointCNN, self).__init__()
 
         C_mid = C_out // 2 if C_in == 0 else C_out // 4
-        if C_in = 0:
+        if C_in == 0:
             depth_multiplier = 4
         else:
             depth_multiplier = min(int(np.ceil(C_out / C_in)), 4)
-            
+
         self.r_indices_func = lambda rep_pts, pts: r_indices_func(rep_pts, pts, K, D)
         self.dense = Dense(C_in, C_out // 2) if C_in != 0 else None
         self.x_conv = XConv(C_out // 2 if C_in != 0 else C_in, C_out, dims, K, P, C_mid, depth_multiplier)
