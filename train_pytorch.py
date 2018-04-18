@@ -2,8 +2,6 @@ import argparse
 import math
 import h5py
 import numpy as np
-#import tensorflow as tf
-#import tf_util
 import socket
 import importlib
 import matplotlib.pyplot as plt
@@ -27,14 +25,12 @@ from torch.utils.data import Dataset, DataLoader
 
 
 from utils.model import RandPointCNN
-from utils.util_funcs import knn_indices_func_gpu
+from utils.util_funcs import knn_indices_func_gpu, knn_indices_func_cpu
 from utils.util_layers import Dense
 
 
 
-
-
-class mnist_dataset(Dataset):
+class modelnet40_dataset(Dataset):
 
     def __init__(self, data, labels):
         self.data = data
@@ -46,6 +42,7 @@ class mnist_dataset(Dataset):
     def __getitem__(self, i):
         return self.data[i], self.labels[i]
 
+AbbPointCNN = lambda a,b,c,d,e: RandPointCNN(a, b, 3, c, d, e, knn_indices_func_cpu)
 class Classifier(nn.Module):
 
     def __init__(self):
@@ -83,15 +80,14 @@ class Classifier(nn.Module):
         return logits_mean
 
 
-
-
+# Load Hyperparameters
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=0, help='GPU to use [default: GPU 0]')
 parser.add_argument('--model', default='pointnet_cls',
                     help='Model name: pointnet_cls or pointnet_cls_basic [default: pointnet_cls]')
 parser.add_argument('--log_dir', default='log', help='Log dir [default: log]')
 parser.add_argument('--num_point', type=int, default=1024, help='Point Number [256/512/1024/2048] [default: 1024]')
-parser.add_argument('--max_epoch', type=int, default=250, help='Epoch to run [default: 250]')
+parser.add_argument('--max_epoch', type=int, default=2, help='Epoch to run [default: 250]')
 parser.add_argument('--batch_size', type=int, default=32, help='Batch Size during training [default: 32]')
 parser.add_argument('--learning_rate', type=float, default=0.001, help='Initial learning rate [default: 0.001]')
 parser.add_argument('--momentum', type=float, default=0.9, help='Initial learning rate [default: 0.9]')
@@ -100,20 +96,16 @@ parser.add_argument('--decay_step', type=int, default=200000, help='Decay step f
 parser.add_argument('--decay_rate', type=float, default=0.7, help='Decay rate for lr decay [default: 0.8]')
 FLAGS = parser.parse_args()
 
-
 num_point = FLAGS.num_point
 lr = FLAGS.learning_rate 
 GPU_INDEX = FLAGS.gpu
 MOMENTUM = FLAGS.momentum
-
-
        
 MAX_NUM_POINT = 2048
 
-
 BN_INIT_DECAY = 0.5
 BN_DECAY_DECAY_RATE = 0.5
-BN_DECAY_DECAY_STEP = float(DECAY_STEP)
+#BN_DECAY_DECAY_STEP = float(DECAY_STEP)
 BN_DECAY_CLIP = 0.99        
         
         
@@ -132,7 +124,7 @@ scaling_range = [0.05, 0.05, 0.05, 'g']
 scaling_range_val = [0, 0, 0, 'u']
 
 
-model = Classifier().cuda()
+model = Classifier()
 
 data_train, label_train, data_val, label_val = data_utils.load_cls_train_val("./mnist/zips/train_files.txt", "./mnist/zips/test_files.txt")
 
@@ -142,11 +134,11 @@ point_num = data_train.shape[1]
 batch_num_per_epoch = int(math.ceil(num_train / batch_size))
 batch_num = batch_num_per_epoch * num_epochs
 
-training_set = mnist_dataset(data_train, label_train)
+training_set = modelnet40_dataset(data_train, label_train)
 training_loader = DataLoader(training_set, batch_size = batch_size)
 
 testing_batch_size = 256
-testing_set = mnist_dataset(data_val, label_val)
+testing_set = modelnet40_dataset(data_val, label_val)
 testing_loader = DataLoader(testing_set, batch_size = testing_batch_size)
 
 
@@ -167,9 +159,7 @@ accuracies = []
 
 if False:
     latest_model = sorted(os.listdir(model_save_dir))[-1]
-    model.load_state_dict(torch.load(os.path.join(model_save_dir, latest_model)))
-     
-     
+    model.load_state_dict(torch.load(os.path.join(model_save_dir, latest_model)))    
      
 for epoch in range(1, num_epochs+1):   
     train_file_idxs = np.arange(0, len(TRAIN_FILES))
