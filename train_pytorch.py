@@ -199,7 +199,10 @@ for epoch in range(1, num_epochs+1):
             optimizer.zero_grad()
 
             t0 = time.time()
+            print(P_Sampled.shape)
+            print(F_Sampled.shape)
             out = model((P_Sampled, F_Sampled))
+
 
             loss = loss_fn(out, Variable(label.long()).cuda())
             loss.backward()
