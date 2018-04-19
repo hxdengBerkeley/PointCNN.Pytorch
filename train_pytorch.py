@@ -30,7 +30,7 @@ from utils.util_layers import Dense
 
 
 random.seed(0)
-dtype = torch.FloatTensor
+dtype = torch.cuda.FloatTensor
 
 class modelnet40_dataset(Dataset):
 
@@ -68,14 +68,6 @@ class Classifier(nn.Module):
             Dense( 64,  40, with_bn = False, activation = None)
         )
         
-        self.test_fcn = nn.Linear(1024*3, 40)
-    '''
-    def forward(self, x):
-        x = x[0]
-        x  = x.view(x.size(0), -1)
-        logits = self.test_fcn(x)
-        return logits
-    '''
     def forward(self, x):
         x = self.pcnn1(x)
         if False:
@@ -136,9 +128,9 @@ order = 'rxyz'
 scaling_range = [0.05, 0.05, 0.05, 'g']
 scaling_range_val = [0, 0, 0, 'u']
 
-print("before model")
+print("------Building model-------")
 model = Classifier().cuda()
-print("after model")
+print("------Successfully Built model-------")
 
 decay_steps = FLAGS.decay_step
 decay_rate = FLAGS.decay_rate  
@@ -212,9 +204,9 @@ for epoch in range(1, num_epochs+1):
 
             out = model((P_sampled, P_sampled))
             loss = loss_fn(out, label)
-            #print("epoch: "+str(epoch) + "   loss: "+str(loss))
             loss.backward()
             optimizer.step()
+            print("epoch: "+str(epoch) + "   loss: "+str(loss.data[0]))
             if global_step % 25 == 0:
                 loss_v = loss.data[0]
                 print("Loss:", loss_v)
