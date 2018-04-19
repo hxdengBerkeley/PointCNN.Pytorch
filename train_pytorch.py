@@ -65,7 +65,7 @@ class Classifier(nn.Module):
         self.fcn = nn.Sequential(
             Dense(160, 128),
             Dense(128,  64, drop_rate = 0.5),
-            Dense( 64,  10, with_bn = False, activation = None)
+            Dense( 64,  40, with_bn = False, activation = None)
         )
         
         self.test_fcn = nn.Linear(1024*3, 40)
