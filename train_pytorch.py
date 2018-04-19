@@ -52,7 +52,7 @@ class Classifier(nn.Module):
 
     def __init__(self):
         super(Classifier, self).__init__()
-        '''
+        
         self.pcnn1 = AbbPointCNN(  1,  32,  8, 1,  -1)
         self.pcnn2 = nn.Sequential(
             AbbPointCNN( 32,  64,  8, 2,  -1),
@@ -66,7 +66,7 @@ class Classifier(nn.Module):
             Dense(128,  64, drop_rate = 0.5),
             Dense( 64,  10, with_bn = False, activation = None)
         )
-        '''
+        
         self.test_fcn = nn.Linear(1024*3, 40)
 
     def forward(self, x):
