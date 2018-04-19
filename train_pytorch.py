@@ -195,7 +195,7 @@ for epoch in range(1, num_epochs+1):
             # Lable
             label = current_label[start_idx:end_idx]
             label = torch.from_numpy(label).long()
-            label = Variable(label)
+            label = Variable(label, requires_grad=False).cuda()
             # Augment batched point clouds by rotation and jittering
             rotated_data = provider.rotate_point_cloud(current_data[start_idx:end_idx, :, :])
             jittered_data = provider.jitter_point_cloud(rotated_data) # P_Sampled
@@ -204,13 +204,13 @@ for epoch in range(1, num_epochs+1):
             optimizer.zero_grad()
 
             t0 = time.time()
-            P_sampled = torch.from_numpy(P_sampled).float()
-            P_sampled = Variable(P_sampled).cuda()
+            P_sampled = torch.from_numpy(P_sampled)
+            P_sampled = Variable(P_sampled, requires_grad=False).cuda()
 
             #F_sampled = torch.from_numpy(F_sampled)
 
             out = model((P_sampled, P_sampled))
-            loss = loss_fn(out, label.cuda())
+            loss = loss_fn(out, label)
             #print("epoch: "+str(epoch) + "   loss: "+str(loss))
             loss.backward()
             optimizer.step()
