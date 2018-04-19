@@ -53,7 +53,7 @@ class Classifier(nn.Module):
     def __init__(self):
         super(Classifier, self).__init__()
         
-        self.pcnn1 = AbbPointCNN(  0,  32,  8, 1,  -1)
+        self.pcnn1 = AbbPointCNN(  1,  32,  8, 1,  -1)
         self.pcnn2 = nn.Sequential(
             AbbPointCNN( 32,  64,  8, 2,  -1),
             AbbPointCNN( 64,  96,  8, 4,  -1),
@@ -135,7 +135,9 @@ order = 'rxyz'
 scaling_range = [0.05, 0.05, 0.05, 'g']
 scaling_range_val = [0, 0, 0, 'u']
 
+print("before model")
 model = Classifier().cuda()
+print("after model")
 
 decay_steps = FLAGS.decay_step
 decay_rate = FLAGS.decay_rate  
@@ -207,6 +209,7 @@ for epoch in range(1, num_epochs+1):
 
             #F_sampled = torch.from_numpy(F_sampled)
 
+            print("ok")
             out = model((P_sampled))
             loss = loss_fn(out, label.cuda())
             #print("epoch: "+str(epoch) + "   loss: "+str(loss))
