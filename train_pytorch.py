@@ -204,7 +204,7 @@ for epoch in range(1, num_epochs+1):
             optimizer.zero_grad()
 
             t0 = time.time()
-            P_sampled = torch.from_numpy(P_sampled)
+            P_sampled = torch.from_numpy(P_sampled).float()
             P_sampled = Variable(P_sampled, requires_grad=False).cuda()
 
             #F_sampled = torch.from_numpy(F_sampled)
