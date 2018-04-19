@@ -68,7 +68,7 @@ class Classifier(nn.Module):
         )
         
         self.test_fcn = nn.Linear(1024*3, 40)
-
+    '''
     def forward(self, x):
         x = x[0]
         x  = x.view(x.size(0), -1)
@@ -91,7 +91,6 @@ class Classifier(nn.Module):
         logits = self.fcn(x)
         logits_mean = torch.mean(logits, dim = 1)
         return logits_mean
-    '''
 
 # Load Hyperparameters
 parser = argparse.ArgumentParser()
