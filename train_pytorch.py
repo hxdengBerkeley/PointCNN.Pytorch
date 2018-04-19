@@ -144,7 +144,7 @@ decay_rate = FLAGS.decay_rate
 lr_min = 0.00001
 
 optimizer = torch.optim.SGD(model.parameters(), lr = 0.01, momentum = 0.9)
-loss_fn = nn.CrossEntropyLoss().type(torch.autograd.Variable)
+loss_fn = nn.CrossEntropyLoss()
 
 global_step = 1
 
