@@ -70,6 +70,7 @@ class Classifier(nn.Module):
         self.test_fcn = nn.Linear(1024*3, 40)
 
     def forward(self, x):
+        x = x[0]
         x  = x.view(x.size(0), -1)
         logits = self.test_fcn(x)
         return logits
