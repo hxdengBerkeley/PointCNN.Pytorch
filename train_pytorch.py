@@ -211,7 +211,7 @@ for epoch in range(1, num_epochs+1):
 
             out = model((P_sampled, None))
             loss = loss_fn(out, label.cuda())
-            #print("epoch: "+str(epoch) + "   loss: "+str(loss))
+            print("epoch: "+str(epoch) + "   loss: "+str(loss))
             loss.backward()
             optimizer.step()
             if global_step % 25 == 0:
