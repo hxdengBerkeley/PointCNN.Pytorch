@@ -60,20 +60,14 @@ class XConv(nn.Module):
             Dense(K*K, K*K, with_bn = False),
             Dense(K*K, K*K, with_bn = False, activation = None)
         )
-        '''
+        
         self.end_conv = EndChannels(SepConv(
             in_channels = C_mid + C_in,
             out_channels = C_out,
             kernel_size = (1, K),
             depth_multiplier = depth_multiplier
         )).cuda()
-        '''
-        self.end_conv = EndChannels(SepConv(
-            in_channels = C_mid + C_in,
-            out_channels = C_out,
-            kernel_size = (1, K)
-        )).cuda()
-
+        
     def forward(self, x : Tuple[UFloatTensor,            # (N, P, dims)
                                 UFloatTensor,            # (N, P, K, dims)
                                 Optional[UFloatTensor]]  # (N, P, K, C_in)
@@ -158,13 +152,12 @@ class PointCNN(nn.Module):
         super(PointCNN, self).__init__()
 
         C_mid = C_out // 2 if C_in == 0 else C_out // 4
-        depth_multiplier = 1
-        '''
+
         if C_in == 0:
             depth_multiplier = 1
         else:
             depth_multiplier = min(int(np.ceil(C_out / C_in)), 4)
-        '''
+
         self.r_indices_func = lambda rep_pts, pts: r_indices_func(rep_pts, pts, K, D)
         self.dense = Dense(C_in, C_out // 2) if C_in != 0 else None
         self.x_conv = XConv(C_out // 2 if C_in != 0 else C_in, C_out, dims, K, P, C_mid, depth_multiplier)
