@@ -209,7 +209,7 @@ for epoch in range(1, num_epochs+1):
 
             #F_sampled = torch.from_numpy(F_sampled)
 
-            out = model((P_sampled, _))
+            out = model((P_sampled, None))
             loss = loss_fn(out, label.cuda())
             #print("epoch: "+str(epoch) + "   loss: "+str(loss))
             loss.backward()
