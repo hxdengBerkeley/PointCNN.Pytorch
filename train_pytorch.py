@@ -32,58 +32,7 @@ from utils.util_layers import Dense
 random.seed(0)
 dtype = torch.cuda.FloatTensor
 
-class modelnet40_dataset(Dataset):
 
-    def __init__(self, data, labels):
-        self.data = data
-        self.labels = labels
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, i):
-        return self.data[i], self.labels[i]
-
-# C_in, C_out, D, N_neighbors, dilution, N_rep, r_indices_func, C_lifted = None, mlp_width = 2
-# (a, b, c, d, e) == (C_in, C_out, N_neighbors, dilution, N_rep)
-# Abbreviated PointCNN constructor.
-AbbPointCNN = lambda a,b,c,d,e: RandPointCNN(a, b, 3, c, d, e, knn_indices_func_gpu)
-
-class Classifier(nn.Module):
-
-    def __init__(self):
-        super(Classifier, self).__init__()
-        
-        self.pcnn1 = AbbPointCNN(  3,  32,  8, 1,  -1)
-        self.pcnn2 = nn.Sequential(
-            AbbPointCNN( 32,  64,  8, 2,  -1),
-            AbbPointCNN( 64,  96,  8, 4,  -1),
-            AbbPointCNN( 96, 128, 12, 4, 120),
-            AbbPointCNN(128, 160, 12, 6, 120)
-        )
-        
-        self.fcn = nn.Sequential(
-            Dense(160, 128),
-            Dense(128,  64, drop_rate = 0.5),
-            Dense( 64,  40, with_bn = False, activation = None)
-        )
-        
-    def forward(self, x):
-        x = self.pcnn1(x)
-        if False:
-            print("Making graph...")
-            k = make_dot(x[1])
-
-            print("Viewing...")
-            k.view()
-            print("DONE")
-
-            assert False
-        x = self.pcnn2(x)[1]  # grab features
-
-        logits = self.fcn(x)
-        logits_mean = torch.mean(logits, dim = 1)
-        return logits_mean
 
 # Load Hyperparameters
 parser = argparse.ArgumentParser()
@@ -102,7 +51,7 @@ parser.add_argument('--decay_rate', type=float, default=0.7, help='Decay rate fo
 FLAGS = parser.parse_args()
 
 NUM_POINT = FLAGS.num_point
-lr = FLAGS.learning_rate 
+LEARNING_RATE = FLAGS.learning_rate
 GPU_INDEX = FLAGS.gpu
 MOMENTUM = FLAGS.momentum
        
@@ -111,13 +60,16 @@ MAX_NUM_POINT = 2048
 BN_INIT_DECAY = 0.5
 BN_DECAY_DECAY_RATE = 0.5
 #BN_DECAY_DECAY_STEP = float(DECAY_STEP)
-BN_DECAY_CLIP = 0.99        
+BN_DECAY_CLIP = 0.99
+
+decay_steps = FLAGS.decay_step
+decay_rate = FLAGS.decay_rate
+LEARNING_RATE_MIN = 0.00001
         
-        
-num_class = 40
+NUM_CLASS = 40
 #sample_num = 160
 BATCH_SIZE = FLAGS.batch_size #32
-num_epochs = FLAGS.max_epoch 
+NUM_EPOCHS = FLAGS.max_epoch
 jitter = 0.01
 jitter_val = 0.01
 
@@ -128,13 +80,67 @@ order = 'rxyz'
 scaling_range = [0.05, 0.05, 0.05, 'g']
 scaling_range_val = [0, 0, 0, 'u']
 
+
+class modelnet40_dataset(Dataset):
+
+    def __init__(self, data, labels):
+        self.data = data
+        self.labels = labels
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, i):
+        return self.data[i], self.labels[i]
+
+
+# C_in, C_out, D, N_neighbors, dilution, N_rep, r_indices_func, C_lifted = None, mlp_width = 2
+# (a, b, c, d, e) == (C_in, C_out, N_neighbors, dilution, N_rep)
+# Abbreviated PointCNN constructor.
+AbbPointCNN = lambda a, b, c, d, e: RandPointCNN(a, b, 3, c, d, e, knn_indices_func_gpu)
+
+
+class Classifier(nn.Module):
+
+    def __init__(self):
+        super(Classifier, self).__init__()
+
+        self.pcnn1 = AbbPointCNN(3, 32, 8, 1, -1)
+        self.pcnn2 = nn.Sequential(
+            AbbPointCNN(32, 64, 8, 2, -1),
+            AbbPointCNN(64, 96, 8, 4, -1),
+            AbbPointCNN(96, 128, 12, 4, 120),
+            AbbPointCNN(128, 160, 12, 6, 120)
+        )
+
+        self.fcn = nn.Sequential(
+            Dense(160, 128),
+            Dense(128, 64, drop_rate=0.5),
+            Dense(64, NUM_CLASS, with_bn=False, activation=None)
+        )
+
+    def forward(self, x):
+        x = self.pcnn1(x)
+        if False:
+            print("Making graph...")
+            k = make_dot(x[1])
+
+            print("Viewing...")
+            k.view()
+            print("DONE")
+
+            assert False
+        x = self.pcnn2(x)[1]  # grab features
+
+        logits = self.fcn(x)
+        logits_mean = torch.mean(logits, dim=1)
+        return logits_mean
+
+
 print("------Building model-------")
 model = Classifier().cuda()
 print("------Successfully Built model-------")
 
-decay_steps = FLAGS.decay_step
-decay_rate = FLAGS.decay_rate  
-lr_min = 0.00001
 
 optimizer = torch.optim.SGD(model.parameters(), lr = 0.01, momentum = 0.9)
 loss_fn = nn.CrossEntropyLoss()
@@ -144,19 +150,19 @@ global_step = 1
 #model_save_dir = os.path.join(CURRENT_DIR, "models", "mnist2")
 #os.makedirs(model_save_dir, exist_ok = True)
 
-TRAIN_FILES = provider.getDataFiles( \
-    os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/train_files.txt'))
-TEST_FILES = provider.getDataFiles(\
-    os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/test_files.txt'))
+TRAIN_FILES = provider.getDataFiles(os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/train_files.txt'))
+TEST_FILES = provider.getDataFiles(os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/test_files.txt'))
 
 losses = []
 accuracies = []
 
+'''
 if False:
     latest_model = sorted(os.listdir(model_save_dir))[-1]
     model.load_state_dict(torch.load(os.path.join(model_save_dir, latest_model)))    
-     
-for epoch in range(1, num_epochs+1):   
+'''
+
+for epoch in range(1, NUM_EPOCHS+1):
     train_file_idxs = np.arange(0, len(TRAIN_FILES))
     np.random.shuffle(train_file_idxs)
 
@@ -176,10 +182,10 @@ for epoch in range(1, num_epochs+1):
         loss_sum = 0
 
         if epoch > 1:
-            lr *= decay_rate ** (global_step // decay_steps)
-            if lr > lr_min:
-                print("NEW LEARNING RATE:", lr)
-                optimizer = torch.optim.SGD(model.parameters(), lr = lr, momentum = 0.9)
+            LEARNING_RATE *= decay_rate ** (global_step // decay_steps)
+            if LEARNING_RATE > LEARNING_RATE_MIN:
+                print("NEW LEARNING RATE:", LEARNING_RATE)
+                optimizer = torch.optim.SGD(model.parameters(), lr = LEARNING_RATE, momentum = 0.9)
 
         for batch_idx in range(num_batches):
             start_idx = batch_idx * BATCH_SIZE
