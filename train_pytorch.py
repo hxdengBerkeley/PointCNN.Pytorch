@@ -57,17 +57,17 @@ MOMENTUM = FLAGS.momentum
        
 MAX_NUM_POINT = 2048
 
+DECAY_STEP = FLAGS.decay_step
+DECAY_RATE = FLAGS.decay_rate
 BN_INIT_DECAY = 0.5
 BN_DECAY_DECAY_RATE = 0.5
-#BN_DECAY_DECAY_STEP = float(DECAY_STEP)
+BN_DECAY_DECAY_STEP = float(DECAY_STEP)
 BN_DECAY_CLIP = 0.99
 
-decay_steps = FLAGS.decay_step
-decay_rate = FLAGS.decay_rate
+
 LEARNING_RATE_MIN = 0.00001
         
 NUM_CLASS = 40
-#sample_num = 160
 BATCH_SIZE = FLAGS.batch_size #32
 NUM_EPOCHS = FLAGS.max_epoch
 jitter = 0.01
