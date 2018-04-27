@@ -12,7 +12,7 @@ arXiv preprint arXiv:1801.07791, 2018.
 We've tested code on ModelNet40 only.
 
 ```python
-python train.py
+python train_pytorch.py
 ```
 
 # License
